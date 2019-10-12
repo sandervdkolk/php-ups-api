@@ -47,6 +47,11 @@ class Product implements NodeInterface
     private $unit;
 
     /**
+     * @var PackingListInfo
+     */
+    private $packingListInfo;
+
+    /**
      * @param null|object $attributes
      */
     public function __construct($attributes = null)
@@ -252,4 +257,26 @@ class Product implements NodeInterface
     {
         return $this->originCountryCode;
     }
+
+        /**
+     * @param PackingListInfo $info
+     *
+     * @return $this
+     */
+    public function setPackingListInfo(PackingListInfo $info)
+    {
+        $this->packingListInfo = $info;
+
+        return $this;
+    }
+
+    /**
+     * @return PackingListInfo
+     */
+    public function getPackingListInfo()
+    {
+        return $this->packingListInfo;
+    }
 }
+
+

@@ -102,6 +102,9 @@ class Product implements NodeInterface
         if ($this->getOriginCountryCode() !== null) {
             $node->appendChild($document->createElement('OriginCountryCode', $this->getOriginCountryCode()));
         }
+        if ($this->getPackingListInfo()) {
+            $node->appendChild($this->getPackingListInfo()->toNode($document));
+        }
 
         return $node;
     }
@@ -258,7 +261,7 @@ class Product implements NodeInterface
         return $this->originCountryCode;
     }
 
-        /**
+    /**
      * @param PackingListInfo $info
      *
      * @return $this

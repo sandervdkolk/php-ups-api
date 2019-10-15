@@ -2,20 +2,23 @@
 
 namespace Ups\Entity;
 
+/**
+ * @author Thijs Wijnmaalen <thijs@wijnmaalen.name>
+ */
 class ShipmentCharge
 {
     const SHIPMENT_CHARGE_TYPE_TRANSPORTATION = '01';
     const SHIPMENT_CHARGE_TYPE_DUTIES = '02';
 
-    const TYPE_BILL_SHIPPER = 'billShipper';
-    const TYPE_BILL_RECEIVER = 'billReceiver';
-    const TYPE_BILL_THIRD_PARTY = 'billThirdParty';
-    const TYPE_CONSIGNEE_BILLED = 'consigneeBilled';
+    const CHARGES_BILL_SHIPPER = 'billShipper';
+    const CHARGES_BILL_RECEIVER = 'billReceiver';
+    const CHARGES_BILL_THIRD_PARTY = 'billThirdParty';
+    const CHARGES_BILL_CONSIGNEE_BILLED = 'billConsigneeBilled';
 
     /**
      * @var string
      */
-    private $type;
+    private $type = '01';
 
     /**
      * @var BillShipper
@@ -24,7 +27,6 @@ class ShipmentCharge
 
     /**
      * @var BillReceiver
-     * TODO not implemented yet
      */
     private $billReceiver;
 
@@ -34,92 +36,23 @@ class ShipmentCharge
     private $billThirdParty;
 
     /**
-     * @var bool
+     * @var boolean
      */
-    private $consigneeBilled;
-
-    public function __construct($attributes = null)
-    {
-        if (isset($attributes->Type)) {
-            $this->setType($attributes->Type);
-        }
-        if (isset($attributes->billShipper)) {
-            $this->setBillShipper($attributes->billShipper);
-        }
-    }
+    private $billConsigneeBilled;
 
     /**
-     * @return BillShipper
+     * @var boolean
      */
-    public function getBillShipper()
-    {
-        return $this->billShipper;
-    }
+    private $splitDutyVATIndicator;
 
     /**
-     * @param BillShipper $billShipper
-     * @return ShipmentCharge
+     * @param string $type
+     *
+     * @return $this
      */
-    public function setBillShipper(BillShipper $billShipper)
+    public function setType($type)
     {
-        $this->billShipper = $billShipper;
-
-        return $this;
-    }
-
-    /**
-     * @return BillReceiver
-     */
-    public function getBillReceiver()
-    {
-        return $this->billReceiver;
-    }
-
-    /**
-     * @param BillReceiver $billReceiver
-     * @return ShipmentCharge
-     */
-    public function setBillReceiver(BillReceiver $billReceiver= null)
-    {
-        $this->billReceiver = $billReceiver;
-
-        return $this;
-    }
-
-    /**
-     * @return BillThirdParty
-     */
-    public function getBillThirdParty()
-    {
-        return $this->billThirdParty;
-    }
-
-    /**
-     * @param BillThirdParty $billThirdParty
-     * @return ShipmentCharge
-     */
-    public function setBillThirdParty(BillThirdParty $billThirdParty = null)
-    {
-        $this->billThirdParty = $billThirdParty;
-
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getConsigneeBilled()
-    {
-        return $this->consigneeBilled;
-    }
-
-    /**
-     * @param bool $consigneeBilled
-     * @return ShipmentCharge
-     */
-    public function setConsigneeBilled($consigneeBilled)
-    {
-        $this->consigneeBilled = $consigneeBilled;
+        $this->type = $type;
 
         return $this;
     }
@@ -133,13 +66,97 @@ class ShipmentCharge
     }
 
     /**
-     * @param string $type
-     * @return ShipmentCharge
+     * @param BillShipper $shipper
+     * @return $this
      */
-    public function setType($type)
+    public function setBillShipper(BillShipper $shipper)
     {
-        $this->type = $type;
+        $this->billShipper = $shipper;
 
         return $this;
+    }
+
+    /**
+     * @return BillShipper
+     */
+    public function getBillShipper()
+    {
+        return $this->billShipper;
+    }
+
+    /**
+     * @param BillReceiver $receiver
+     * @return $this
+     */
+    public function setBillReceiver(BillReceiver $receiver)
+    {
+        $this->billReceiver = $receiver;
+
+        return $this;
+    }
+
+    /**
+     * @return BillReceiver
+     */
+    public function getBillReceiver()
+    {
+        return $this->billReceiver;
+    }
+
+    /**
+     * @param BillThirdParty $thirdParty
+     * @return $this
+     */
+    public function setThirdPartyBilled(BillThirdParty $thirdParty)
+    {
+        $this->billThirdParty = $thirdParty;
+
+        return $this;
+    }
+
+    /**
+     * @return BillThirdParty
+     */
+    public function getThirdPartyBilled()
+    {
+        return $this->billThirdParty;
+    }
+
+    /**
+     * @param boolean $bool
+     * @return $this
+     */
+    public function setConsigneeBilled($bool = true)
+    {
+        $this->billConsigneeBilled = $bool;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getConsigneeBilled()
+    {
+        return $this->billConsigneeBilled;
+    }
+
+    /**
+     * @param bool $indicator
+     * @return $this
+     */
+    public function setSplitDutyVATIndicator($indicator = true)
+    {
+        $this->splitDutyVATIndicator = $indicator;
+
+        return $this;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getSplitDutyVATIndicator()
+    {
+        return $this->splitDutyVATIndicator;
     }
 }

@@ -2,86 +2,93 @@
 
 namespace Ups\Entity;
 
-use LogicException;
+use DOMDocument;
+use Ups\NodeInterface;
 
-class ItemizedPaymentInformation
+class ItemizedPaymentInformation implements NodeInterface
 {
 
     /**
-     * @var bool
+     * Charges for Transportation (max 1) and Duties and Tax (max 1)
+     *
+     * @var array
      */
-    private $splitDutyVATIndicator;
+    private $charges = array();
 
     /**
-     * @var transportationShipmentCharge
+     * @param null|DOMDocument $document
+     *
+     * @return DOMElement
      */
-    private $transportationShipmentCharge;
-
-    /**
-     * @var dutiesAndTaxesShipmentCharge
-     */
-    private $dutiesAndTaxesShipmentCharge;
-
-    public function __construct($transportationShipmentCharge = null, $dutiesAndTaxesShipmentCharge = null, $splitDutyVATIndicator = null)
+    public function toNode(DOMDocument $document = null)
     {
-        if ($transportationShipmentCharge) {
-            $this->setShipmentCharge($transportationShipmentCharge);
+        if (null === $document) {
+            $document = new DOMDocument();
         }
-        if ($dutiesAndTaxesShipmentCharge) {
-            $this->setShipmentCharge($dutiesAndTaxesShipmentCharge);
+
+        $node = $document->createElement('ItemizedPaymentInformation');
+
+        foreach ($this->getShipmentCharges() as $shipmentCharge) {
+            $chNode = $document->createElement('ShipmentCharge');
+            $chNode->appendChild($document->createElement('Type', $shipmentCharge->getType()));
+
+            if ($shipmentCharge->getBillShipper()) {
+                $chNode->appendChild($shipmentCharge->getBillShipper()->toNode($document));
+            } elseif ($shipmentCharge->getBillReceiver()) {
+                $receiverNode = $document->createElement('BillReceiver');
+
+                if ($shipmentCharge->getBillReceiver()->getAccountNumber()) {
+                    $receiverNode->appendChild($document->createElement('AccountNumber', $shipmentCharge->getBillReceiver()->getAccountNumber()));
+                }
+                if ($shipmentCharge->getBillReceiver()->getPostalCode()) {
+                    $address = $document->createElement('Address');
+                    $address->appendChild($document->createElement('PostalCode', $shipmentCharge->getBillReceiver()->getPostalCode()));
+                    $receiverNode->appendChild($address);
+                }
+
+                $chNode->appendChild($receiverNode);
+            } elseif ($shipmentCharge->getThirdPartyBilled()) {
+                $chNode->appendChild($shipmentCharge->getThirdPartyBilled()->toNode($document));
+            } elseif ($shipmentCharge->getConsigneeBilled()) {
+                $chNode->appendChild($document->createElement('ConsigneeBilled'));
+            }
+
+            $node->appendChild($chNode);
+
+            if ($shipmentCharge->getSplitDutyVATIndicator()) {
+                $node->appendChild($document->createElement('SplitDutyVATIndicator'));
+            }
         }
-        if ($splitDutyVATIndicator) {
-            $this->setSplitDutyVATIndicator($splitDutyVATIndicator);
-        }
+        
+        return $node;
     }
 
     /**
-     * @return transportationShipmentCharge
+     * @param ShipmentCharge $charge
+     * @return $this
      */
-    public function getTransportationShipmentCharge()
+    public function addShipmentCharge(ShipmentCharge $charge)
     {
-        return $this->transportationShipmentCharge;
-    }
+        $this->charges[] = $charge;
 
-    /**
-     * @param ShipmentCharge $shipmentCharge
-     * @return ItemizedPaymentInformation
-     */
-    public function setShipmentCharge(ShipmentCharge $shipmentCharge)
-    {
-        if ($shipmentCharge->getType() === ShipmentCharge::SHIPMENT_CHARGE_TYPE_TRANSPORTATION) {
-            $this->transportationShipmentCharge = $shipmentCharge;
-        } elseif ($shipmentCharge->getType() === ShipmentCharge::SHIPMENT_CHARGE_TYPE_DUTIES) {
-            $this->dutiesAndTaxesShipmentCharge = $shipmentCharge;
-        } else {
-            throw new LogicException(sprintf('Unknown ShipmentCharge charge type requested: "%s"', $type));
-        }
         return $this;
     }
 
     /**
-     * @return DutiesAndTaxesShipmentCharge
+     * @return ShipmentCharge[]
      */
-    public function getDutiesAndTaxesShipmentCharge()
+    public function getShipmentCharges()
     {
-        return $this->dutiesAndTaxesShipmentCharge;
+        return $this->charges;
     }
 
     /**
-     * @return bool
+     * @param ShipmentCharge[] $charges
+     * @return $this
      */
-    public function getSplitDutyVATIndicator()
+    public function setShipmentCharges(array $charges)
     {
-        return $this->splitDutyVATIndicator;
-    }
-
-    /**
-     * @param bool $splitDutyVATIndicator
-     * @return ItemizedPaymentInformation
-     */
-    public function setSplitDutyVATIndicator($splitDutyVATIndicator)
-    {
-        $this->splitDutyVATIndicator = $splitDutyVATIndicator;
+        $this->charges = $charges;
 
         return $this;
     }

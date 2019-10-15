@@ -51,8 +51,7 @@ class Pickup extends Ups
      * @return \stdClass
      */
     public function createPickupRequest(
-        PickupCreationRequest $request,
-        Shipment $shipment
+        PickupCreationRequest $request
     )
     {
         return $this->sendRequest($request);
